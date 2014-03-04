@@ -61,6 +61,18 @@ class Request {
 		return $this->accessApi($procName, $data);
     }
 
+    function updates($procName, $data) {
+		$data = [
+				 "proc_info" =>
+				 [
+				  "proc_division" => "U",
+				  "proc_detail_division" => "1",
+				  ],
+				 "data" => $data,
+				 ];
+		return $this->accessApi($procName, $data);
+    }
+
     function delete($procName, $tableName, $data) {
 		$data = [
 				 "proc_info" =>
@@ -179,4 +191,18 @@ class Request {
 		return $this->update("stock_upd", "Stock", $data);
     }
 
+    function updateOrders($orderHead, $orderDetails){
+		return $this->updates("transaction_upd",
+                              [
+                               [
+                                "table_name" => "TransactionHead",
+                                "rows"       => [ $orderHead ],
+                                ],
+                               [
+                                "table_name" => "TransactionDetail",
+                                "rows"       => $orderDetails,
+                                ]
+                               ]
+                              );
+    }
 }

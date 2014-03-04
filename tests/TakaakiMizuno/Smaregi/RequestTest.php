@@ -108,31 +108,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(1, $response->responseJson['result']['Stock']);
 	}
 
-	public function testDeleteStocks() {
-		global $superGlobals;
-		$response = $this->smaregiapi->deleteStocks("1", $superGlobals['productId']);
-		$this->assertEquals(true, $response->isSuccess(), "deleteStocks failed");
-		$this->assertArrayHasKey("result", $response->responseJson, "deleteStocks didn't return result");
-		$this->assertArrayHasKey("Stock", $response->responseJson['result'], "deleteStocks didn't return Stock");
-		$this->assertEquals(1, $response->responseJson['result']['Stock']);
-	}
-
-	public function testDeleteProducts() {
-		global $superGlobals;
-		$response = $this->smaregiapi->deleteProducts("Product", $superGlobals['productId']);
-		$this->assertEquals(true, $response->isSuccess(), "deleteProducts failed");
-		$this->assertArrayHasKey("result", $response->responseJson, "deleteProducts didn't return result");
-		$this->assertEquals(1, $response->responseJson['result']['Product']);
-	}
-
-	public function testDeleteCategories() {
-		global $superGlobals;
-		$response = $this->smaregiapi->deleteCategories($superGlobals['categoryId']);
-		$this->assertEquals(true, $response->isSuccess(), "deleteCategories failed");
-		$this->assertArrayHasKey("result", $response->responseJson, "deleteCategories didn't return result");
-		$this->assertEquals(1, $response->responseJson['result']['Category']);
-	}
-
 	public function testGetCustomers() {
 		$response = $this->smaregiapi->getCustomers();
 		$this->assertEquals(true, $response->isSuccess(), "getCustomers failed");
@@ -156,7 +131,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 			 "firstKana"       => "Kana",
 			 "sex"             => "0",
 			 "mailReceiveFlag" => "0",
-			 "status"          => "0"
+			 "status"          => "0",
+             "point"           => 200,
 			 ];
 
 		$response = $this->smaregiapi->updateCustomers($data);
@@ -166,6 +142,44 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(1, $response->responseJson['result']['Customer']);
 	}
 
+    public function testUpdateOrder() {
+		global $superGlobals;
+        $date = (new DateTime("now", new DateTimeZone("Asia/Tokyo")))->format("Y-m-d");
+        $datetime = (new DateTime("now", new DateTimeZone("Asia/Tokyo")))->format("Y-m-d H:i:s");
+        print $date;
+        $orderHead =
+            [
+             "transactionHeadDivision" => "1",
+             "cancelDivision"          => "0",
+             "subtotal"                => "1000",
+             "pointDiscount"           => "100",
+             "total"                   => "900",
+             "storeId"                 => "1",
+             "terminalId"              => "9999",
+             "terminalTranId"          => "9999",
+             "sumDivision"             => "2",
+             "sumDateTime"             => $date,
+             "terminalTranDateTime"    => $datetime,
+             ];
+        $orderDetails =
+            [
+             [
+              "transactionDetailDivision" => "1",
+              "productId"                 => $superGlobals['productId'],
+              "salesPrice"                => 1000,
+              "quantity"                  => 1,
+              ]
+             ];
+        $response = $this->smaregiapi->updateOrders($orderHead, $orderDetails);
+        print_r($response->responseJson);
+		$this->assertEquals(true, $response->isSuccess(), "update Order failed");
+		$this->assertArrayHasKey("result", $response->responseJson, "deleteOrder didn't return result");
+		$this->assertArrayHasKey("TransactionHead", $response->responseJson['result'], "updateOrder didn't return TransactionHead");
+		$this->assertEquals(1, $response->responseJson['result']['TransactionHead']);
+		$this->assertArrayHasKey("TransactionDetail", $response->responseJson['result'], "updateOrder didn't return TransactionDetail");
+		$this->assertEquals(1, $response->responseJson['result']['TransactionDetail']);
+    }
+
 	public function testDeleteCustomers() {
 		global $superGlobals;
 		$response = $this->smaregiapi->deleteCustomers($superGlobals['customerId']);
@@ -173,6 +187,31 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertArrayHasKey("result", $response->responseJson, "deleteCustomers didn't return result");
 		$this->assertArrayHasKey("Customer", $response->responseJson['result'], "deleteCustomers didn't return Customer");
 		$this->assertEquals(1, $response->responseJson['result']['Customer']);
+	}
+
+	public function testDeleteStocks() {
+		global $superGlobals;
+		$response = $this->smaregiapi->deleteStocks("1", $superGlobals['productId']);
+		$this->assertEquals(true, $response->isSuccess(), "deleteStocks failed");
+		$this->assertArrayHasKey("result", $response->responseJson, "deleteStocks didn't return result");
+		$this->assertArrayHasKey("Stock", $response->responseJson['result'], "deleteStocks didn't return Stock");
+		$this->assertEquals(1, $response->responseJson['result']['Stock']);
+	}
+
+	public function testDeleteProducts() {
+		global $superGlobals;
+		$response = $this->smaregiapi->deleteProducts("Product", $superGlobals['productId']);
+		$this->assertEquals(true, $response->isSuccess(), "deleteProducts failed");
+		$this->assertArrayHasKey("result", $response->responseJson, "deleteProducts didn't return result");
+		$this->assertEquals(1, $response->responseJson['result']['Product']);
+	}
+
+	public function testDeleteCategories() {
+		global $superGlobals;
+		$response = $this->smaregiapi->deleteCategories($superGlobals['categoryId']);
+		$this->assertEquals(true, $response->isSuccess(), "deleteCategories failed");
+		$this->assertArrayHasKey("result", $response->responseJson, "deleteCategories didn't return result");
+		$this->assertEquals(1, $response->responseJson['result']['Category']);
 	}
 
 }

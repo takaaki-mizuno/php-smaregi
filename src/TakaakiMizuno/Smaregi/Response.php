@@ -36,8 +36,8 @@ class Response {
             $this->statusCode = $this->response->code;
             $this->responseJson = json_decode($response->raw_body, true);
             if( !$this->isSuccess() ){
-                if( array_key_exists("error_code", $response->body ) ){
-                    $this->errorCode = $response->body["error_code"];
+                if( array_key_exists("error_code", $this->responseJson ) ){
+                    $this->errorCode = $this->responseJson["error_code"];
                 }else{
                     $this->errorCode = self::$ERROR_UNKNOWN;
                 }
