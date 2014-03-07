@@ -146,7 +146,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		global $superGlobals;
         $date = (new DateTime("now", new DateTimeZone("Asia/Tokyo")))->format("Y-m-d");
         $datetime = (new DateTime("now", new DateTimeZone("Asia/Tokyo")))->format("Y-m-d H:i:s");
-        print $date;
         $orderHead =
             [
              "transactionHeadDivision" => "1",
@@ -171,13 +170,29 @@ class RequestTest extends \PHPUnit_Framework_TestCase
               ]
              ];
         $response = $this->smaregiapi->updateOrders($orderHead, $orderDetails);
-        print_r($response->responseJson);
 		$this->assertEquals(true, $response->isSuccess(), "update Order failed");
 		$this->assertArrayHasKey("result", $response->responseJson, "deleteOrder didn't return result");
 		$this->assertArrayHasKey("TransactionHead", $response->responseJson['result'], "updateOrder didn't return TransactionHead");
 		$this->assertEquals(1, $response->responseJson['result']['TransactionHead']);
 		$this->assertArrayHasKey("TransactionDetail", $response->responseJson['result'], "updateOrder didn't return TransactionDetail");
 		$this->assertEquals(1, $response->responseJson['result']['TransactionDetail']);
+    }
+
+    public function testGetOrder() {
+		global $superGlobals;
+        $response = $this->smaregiapi->getOrders();
+		$this->assertEquals(true, $response->isSuccess(), "get Order failed");
+		$this->assertArrayHasKey("result", $response->responseJson, "heyOrder didn't return result");
+        $this->assertGreaterThan(0, $response->responseJson['total_count'], "Total count of result is zero");
+        $this->assertArrayHasKey("transactionHeadId",$response->responseJson['result'][0]);
+        $superGlobals['order_id'] = $response->responseJson['result'][0]["transactionHeadId"];
+    }
+
+    public function testGetOrderDetail() {
+		global $superGlobals;
+        $response = $this->smaregiapi->getOrderDetails($superGlobals['order_id']);
+		$this->assertEquals(true, $response->isSuccess(), "get Order detail failed");
+		$this->assertArrayHasKey("result", $response->responseJson, "getOrderdetail didn't return result");
     }
 
 	public function testDeleteCustomers() {
