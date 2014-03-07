@@ -90,7 +90,7 @@ class Request {
 		return $this->accessApi($procName, $data);
     }
 
-    function get($procName, $tableName, $limit=0, $page=0) {
+    function get($procName, $tableName, $limit=0, $page=0, $order=null, $conditions=null) {
         $data = [
                  'table_name' => $tableName
                  ];
@@ -99,6 +99,12 @@ class Request {
         }
         if( $limit > 0 ){
             $data['limit'] = $limit;
+        }
+        if( !empty($order) ){
+            $data['order'] = $order;
+        }
+        if( !empty($conditions) ){
+            $data['conditions'] = $conditions;
         }
         foreach (array("conditions","fields","order") as $param) {
             if( count($this->params[$param]) > 0 ){
@@ -189,6 +195,14 @@ class Request {
 			 "stockDivision" => "15",
 			 ];
 		return $this->update("stock_upd", "Stock", $data);
+    }
+
+    function getOrders($limit=0, $page=0) {
+		return $this->get("transaction_ref", "TransactionHead", $limit, $page, ["terminalTranDateTime desc"]);
+    }
+
+    function getOrderDetails($order_id) {
+		return $this->get("transaction_ref", "TransactionDetail", 0, 0, null, [["transactionHeadId" => $order_id ]]);
     }
 
     function updateOrders($orderHead, $orderDetails){
